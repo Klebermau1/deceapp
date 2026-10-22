@@ -56,7 +56,7 @@ export async function eliminarUsuario(id, causante) {
 
     await registrar({
         log: 'usuarios', descripcion: 'deleted', evento: 'deleted', usuario: causante,
-        sujeto: { tipo: MODELO_USUARIO, id }, propiedades: { old: pick(antes, CAMPOS_AUDITADOS) },
+        sujeto: { tipo: MODELO_USUARIO, id }, propiedades: { old: { ...pick(antes, CAMPOS_AUDITADOS), activo: Boolean(antes?.activo) } },
     });
     return null;
 }
@@ -96,14 +96,14 @@ r.post('usuarios.store', '/usuarios', ...admin, async (req, res) => {
         name: datos.name,
         email: datos.email,
         cargo: datos.cargo ?? null,
-        activo: booleano(req.body, 'activo', false) ? 1 : 0,
+        activo: booleano(req.body, 'activo', false),
     };
 
     const id = await transaction(async (conn) => {
         const fecha = ahora();
         const { insertId } = await conn.execute(
             'INSERT INTO users (name, email, password, cargo, activo, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [nuevo.name, nuevo.email, await cifrarClave(datos.password), nuevo.cargo, nuevo.activo, fecha, fecha],
+            [nuevo.name, nuevo.email, await cifrarClave(datos.password), nuevo.cargo, nuevo.activo ? 1 : 0, fecha, fecha],
         );
         await asignarRol(conn, insertId, datos.role);
         return insertId;
@@ -149,12 +149,12 @@ r.put('usuarios.update', '/usuarios/:usuario', ...admin, async (req, res, next) 
         name: datos.name,
         email: datos.email,
         cargo: datos.cargo ?? null,
-        activo: booleano(req.body, 'activo', false) ? 1 : 0,
+        activo: booleano(req.body, 'activo', false),
     };
 
     await transaction(async (conn) => {
         const campos = ['name = ?', 'email = ?', 'cargo = ?', 'activo = ?', 'updated_at = ?'];
-        const valores = [despues.name, despues.email, despues.cargo, despues.activo, ahora()];
+        const valores = [despues.name, despues.email, despues.cargo, despues.activo ? 1 : 0, ahora()];
         if (datos.password) {
             campos.push('password = ?');
             valores.push(await cifrarClave(datos.password));
@@ -163,7 +163,7 @@ r.put('usuarios.update', '/usuarios/:usuario', ...admin, async (req, res, next) 
         await asignarRol(conn, antes.id, datos.role);
     });
 
-    const diferencias = cambios({ ...antes, activo: antes.activo ? 1 : 0 }, despues, CAMPOS_AUDITADOS);
+    const diferencias = cambios({ ...antes, activo: Boolean(antes.activo) }, despues, CAMPOS_AUDITADOS);
     if (diferencias) {
         await registrar({
             log: 'usuarios', descripcion: 'updated', evento: 'updated', usuario: req.user,

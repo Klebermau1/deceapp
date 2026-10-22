@@ -1,0 +1,65 @@
+<%- contentFor('header') %>
+<div class="flex items-center justify-between">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">Años lectivos</h2>
+    <% if (hasRoute('bienestar.dashboard')) { %>
+        <a href="<%= route('bienestar.dashboard') %>" class="text-sm text-indigo-600 hover:underline">&larr; Bienestar Docente</a>
+    <% } %>
+</div>
+
+<%- contentFor('body') %>
+<div class="py-8">
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-4">
+
+        <%- include('../components/alertas') %>
+
+        <% if (!hayActivo) { %>
+            <div class="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-4">
+                ⚠️ Ningún año está marcado como <strong>"Actual"</strong>. Edita uno y marca la casilla correspondiente, o los docentes no podrán completar su evaluación.
+            </div>
+        <% } %>
+
+        <div class="flex justify-end">
+            <a href="<%= route('bienestar.ciclos-lectivos.create') %>" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500">
+                + Nuevo año lectivo
+            </a>
+        </div>
+
+        <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left font-medium text-gray-500">Año lectivo</th>
+                        <th class="px-4 py-2 text-left font-medium text-gray-500">Fechas</th>
+                        <th class="px-4 py-2 text-left font-medium text-gray-500">Estado</th>
+                        <th class="px-4 py-2"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <% if (pagina.items.length === 0) { %>
+                        <tr>
+                            <td colspan="4" class="px-4 py-6 text-center text-gray-500">No hay años lectivos registrados.</td>
+                        </tr>
+                    <% } %>
+                    <% pagina.items.forEach((ciclo) => { %>
+                        <tr>
+                            <td class="px-4 py-2 font-medium"><%= ciclo.anio_lectivo %></td>
+                            <td class="px-4 py-2 text-gray-500"><%= f.fecha(ciclo.fecha_inicio) || '—' %> – <%= f.fecha(ciclo.fecha_fin) || '—' %></td>
+                            <td class="px-4 py-2">
+                                <% if (ciclo.activo) { %>
+                                    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">Actual</span>
+                                <% } else { %>
+                                    <span class="text-xs text-gray-400">—</span>
+                                <% } %>
+                            </td>
+                            <td class="px-4 py-2 text-right">
+                                <a href="<%= route('bienestar.ciclos-lectivos.edit', ciclo.id) %>" class="text-indigo-600 hover:underline">Editar</a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+        <%- include('../partials/paginacion', { pagina }) %>
+    </div>
+</div>

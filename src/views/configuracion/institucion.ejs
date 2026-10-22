@@ -1,0 +1,115 @@
+<% const entrada = 'block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm'; %>
+<%
+    // Si la validacion fallo, el pin vuelve a donde lo dejo el usuario.
+    const numero = (v) => (v === null || v === undefined || v === '' || Number.isNaN(Number(v)) ? null : Number(v));
+    const lat = hayOld ? numero(old('lat', null)) : numero(ubicacion?.latitud);
+    const lng = hayOld ? numero(old('lng', null)) : numero(ubicacion?.longitud);
+%>
+
+<%- contentFor('header') %>
+<h2 class="font-semibold text-xl text-gray-800 leading-tight">Configuración de la institución</h2>
+
+<%- contentFor('body') %>
+<div class="py-8">
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-4">
+
+        <%- include('../components/alertas') %>
+
+        <div x-data="institucionMapa(<%= JSON.stringify({ lat, lng }) %>)">
+            <form method="POST" action="<%= route('institucion.update') %>" enctype="multipart/form-data" class="space-y-4">
+                <%- csrf %>
+
+                <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-4">
+                    <h3 class="text-sm font-semibold text-gray-800 uppercase tracking-wide">Nombre y logo</h3>
+
+                    <div>
+                        <label for="nombre" class="block font-medium text-sm text-gray-700">Nombre de la institución</label>
+                        <input id="nombre" name="nombre" class="<%= entrada %>" value="<%= old('nombre', configuracion?.nombre) %>"
+                               placeholder="Ej. Unidad Educativa Particular Madre María Berenice">
+                        <%- include('../components/input-error', { mensajes: errors('nombre') }) %>
+                    </div>
+
+                    <div>
+                        <label for="logo" class="block font-medium text-sm text-gray-700">Logo de la institución</label>
+                        <div class="flex items-center gap-4 mt-1">
+                            <% if (logoUrl) { %>
+                                <img src="<%= logoUrl %>" alt="Logo actual" class="w-16 h-16 object-contain rounded-md border border-gray-200 bg-white">
+                            <% } else { %>
+                                <div class="w-16 h-16 shrink-0 rounded-md border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">Sin logo</div>
+                            <% } %>
+                            <input id="logo" type="file" name="logo" accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                                   class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:uppercase file:tracking-widest file:bg-gray-800 file:text-white hover:file:bg-gray-700">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">PNG, JPG, SVG o WEBP, máximo 2 MB. Aparece en el menú, la pantalla de acceso y como ícono de pestaña del navegador.</p>
+                        <%- include('../components/input-error', { mensajes: errors('logo') }) %>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-4">
+                    <h3 class="text-sm font-semibold text-gray-800 uppercase tracking-wide">Profesional responsable del departamento</h3>
+                    <p class="text-xs text-gray-500">
+                        Aparece por defecto como responsable al crear una nueva acta de reunión, para que los
+                        informes queden firmados a nombre de quien está oficialmente a cargo del DECE, sin
+                        importar qué miembro del equipo la esté registrando.
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="responsable_nombre" class="block font-medium text-sm text-gray-700">Nombres y apellidos</label>
+                            <input id="responsable_nombre" name="responsable_nombre" class="<%= entrada %>" value="<%= old('responsable_nombre', configuracion?.responsable_nombre) %>">
+                            <%- include('../components/input-error', { mensajes: errors('responsable_nombre') }) %>
+                        </div>
+                        <div>
+                            <label for="responsable_cargo" class="block font-medium text-sm text-gray-700">Cargo</label>
+                            <input id="responsable_cargo" name="responsable_cargo" class="<%= entrada %>" value="<%= old('responsable_cargo', configuracion?.responsable_cargo) %>" placeholder="Ej. Psicólogo Educativo">
+                            <%- include('../components/input-error', { mensajes: errors('responsable_cargo') }) %>
+                        </div>
+                        <div>
+                            <label for="responsable_correo" class="block font-medium text-sm text-gray-700">Correo electrónico</label>
+                            <input id="responsable_correo" type="email" name="responsable_correo" class="<%= entrada %>" value="<%= old('responsable_correo', configuracion?.responsable_correo) %>">
+                            <%- include('../components/input-error', { mensajes: errors('responsable_correo') }) %>
+                        </div>
+                        <div>
+                            <label for="responsable_telefono" class="block font-medium text-sm text-gray-700">Teléfono</label>
+                            <input id="responsable_telefono" name="responsable_telefono" class="<%= entrada %>" value="<%= old('responsable_telefono', configuracion?.responsable_telefono) %>">
+                            <%- include('../components/input-error', { mensajes: errors('responsable_telefono') }) %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-4">
+                    <h3 class="text-sm font-semibold text-gray-800 uppercase tracking-wide">Ubicación en el mapa</h3>
+                    <p class="text-xs text-gray-500">
+                        Este punto se usa como centro para calcular la distancia aproximada de cada estudiante en el
+                        <% if (hasRoute('fichas.mapa')) { %><a href="<%= route('fichas.mapa') %>" class="underline">mapa de ubicaciones</a><% } else { %>mapa de ubicaciones<% } %>.
+                        Haz clic en el mapa o arrastra el pin para ajustarlo.
+                    </p>
+
+                    <div x-ref="mapa" class="w-full rounded-md border border-gray-200" style="height: 20rem;"></div>
+
+                    <input type="hidden" name="lat" :value="lat">
+                    <input type="hidden" name="lng" :value="lng">
+                    <%- include('../components/input-error', { mensajes: [...errors('lat'), ...errors('lng')].filter((m, i, a) => a.indexOf(m) === i) }) %>
+
+                    <div>
+                        <label for="direccion" class="block font-medium text-sm text-gray-700">Referencia de dirección (opcional)</label>
+                        <input id="direccion" name="direccion" class="<%= entrada %>" value="<%= old('direccion', ubicacion?.direccion) %>"
+                               placeholder="Ej. Unidad Educativa Particular Madre María Berenice, Tambillo">
+                        <%- include('../components/input-error', { mensajes: errors('direccion') }) %>
+                    </div>
+
+                    <div class="text-xs text-gray-500">
+                        Coordenadas seleccionadas:
+                        <span x-text="lat ? lat.toFixed(6) : '—'"></span>,
+                        <span x-text="lng ? lng.toFixed(6) : '—'"></span>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Guardar configuración</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>

@@ -83,6 +83,19 @@ function reglaSimple(regla, valor, campo, datos, atributos) {
             return parametro.split(',').includes(String(valor)) ? null : `El ${nombreCampo} seleccionado no es válido.`;
         case 'date':
             return !Number.isNaN(Date.parse(valor)) ? null : `El campo ${nombreCampo} debe ser una fecha válida.`;
+        case 'after_or_equal': {
+            // Como Laravel: si la otra fecha falta o no es valida, no se compara.
+            const otra = datos[parametro];
+            if (!otra || Number.isNaN(Date.parse(otra))) {
+                return null;
+            }
+            return Date.parse(valor) >= Date.parse(otra) ? null : `El campo ${nombreCampo} debe ser una fecha posterior o igual a ${etiqueta(parametro, atributos)}.`;
+        }
+        case 'between': {
+            const [min, max] = parametro.split(',').map(Number);
+            const n = Number(valor);
+            return Number.isFinite(n) && n >= min && n <= max ? null : `El campo ${nombreCampo} debe estar entre ${min} y ${max}.`;
+        }
         case 'lowercase':
             return valor === String(valor).toLowerCase() ? null : `El campo ${nombreCampo} debe estar en minúsculas.`;
         default:

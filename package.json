@@ -36,6 +36,7 @@
     "leaflet.heat": "0.2.0",
     "leaflet.markercluster": "1.5.3",
     "method-override": "3.0.0",
+    "multer": "2.0.2",
     "mysql2": "3.12.0",
     "tailwindcss": "3.4.17"
   }

@@ -1,0 +1,38 @@
+<%- contentFor('header') %>
+<h2 class="font-semibold text-xl text-gray-800 leading-tight">Auditoría del sistema</h2>
+
+<%- contentFor('body') %>
+<div class="py-8">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
+
+        <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left font-medium text-gray-500">Fecha</th>
+                        <th class="px-4 py-2 text-left font-medium text-gray-500">Usuario</th>
+                        <th class="px-4 py-2 text-left font-medium text-gray-500">Acción</th>
+                        <th class="px-4 py-2 text-left font-medium text-gray-500">Registro</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <% if (pagina.items.length === 0) { %>
+                        <tr>
+                            <td colspan="4" class="px-4 py-6 text-center text-gray-500">Sin actividad registrada todavía.</td>
+                        </tr>
+                    <% } %>
+                    <% pagina.items.forEach((registro) => { %>
+                        <tr>
+                            <td class="px-4 py-2 whitespace-nowrap"><%= f.fechaHora(registro.created_at) %></td>
+                            <td class="px-4 py-2"><%= registro.causante ?? 'Sistema' %></td>
+                            <td class="px-4 py-2"><%= registro.description %></td>
+                            <td class="px-4 py-2 whitespace-nowrap"><%= registro.tipo %> #<%= registro.subject_id ?? '' %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+        <%- include('../partials/paginacion', { pagina }) %>
+    </div>
+</div>

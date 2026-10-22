@@ -1,0 +1,54 @@
+<%# Crear (ciclo = null) o editar un año lectivo. %>
+<%
+    const entrada = 'block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm';
+    const marcado = hayOld ? old('activo', '') === '1' : (ciclo ? ciclo.activo : sugerirActivo);
+%>
+
+<%- contentFor('header') %>
+<h2 class="font-semibold text-xl text-gray-800 leading-tight"><%= ciclo ? 'Editar año lectivo' : 'Nuevo año lectivo' %></h2>
+
+<%- contentFor('body') %>
+<div class="py-8">
+    <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+        <form method="POST" action="<%= ciclo ? route('bienestar.ciclos-lectivos.update', ciclo.id) : route('bienestar.ciclos-lectivos.store') %>" class="space-y-6">
+            <%- csrf %>
+            <% if (ciclo) { %><input type="hidden" name="_method" value="PUT"><% } %>
+
+            <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-4">
+                <div>
+                    <label for="anio_lectivo" class="block font-medium text-sm text-gray-700">Año lectivo</label>
+                    <input id="anio_lectivo" name="anio_lectivo" placeholder="2026-2027" class="<%= entrada %>" value="<%= old('anio_lectivo', ciclo?.anio_lectivo) %>" required>
+                    <%- include('../components/input-error', { mensajes: errors('anio_lectivo') }) %>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="fecha_inicio" class="block font-medium text-sm text-gray-700">Fecha de inicio</label>
+                        <input id="fecha_inicio" type="date" name="fecha_inicio" class="<%= entrada %>" value="<%= old('fecha_inicio', f.fechaInput(ciclo?.fecha_inicio)) %>">
+                        <%- include('../components/input-error', { mensajes: errors('fecha_inicio') }) %>
+                    </div>
+                    <div>
+                        <label for="fecha_fin" class="block font-medium text-sm text-gray-700">Fecha de fin</label>
+                        <input id="fecha_fin" type="date" name="fecha_fin" class="<%= entrada %>" value="<%= old('fecha_fin', f.fechaInput(ciclo?.fecha_fin)) %>">
+                        <%- include('../components/input-error', { mensajes: errors('fecha_fin') }) %>
+                    </div>
+                </div>
+
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="activo" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" <%= marcado ? 'checked' : '' %>>
+                    <span class="ms-2 text-sm text-gray-700">Marcar como año lectivo actual (desactiva cualquier otro que esté marcado)</span>
+                </label>
+                <p class="text-xs text-amber-600">
+                    ⚠️ Si ningún año lectivo está marcado como actual, los docentes no podrán completar su evaluación anual.
+                </p>
+            </div>
+
+            <div class="flex justify-end items-center gap-4">
+                <a href="<%= route('bienestar.ciclos-lectivos.index') %>" class="text-sm text-gray-500 hover:underline">Cancelar</a>
+                <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                    <%= ciclo ? 'Guardar cambios' : 'Crear año lectivo' %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -28,6 +28,8 @@ import rutasPerfil from './routes/perfil.js';
 import rutasUsuarios from './routes/usuarios.js';
 import rutasRoles from './routes/roles.js';
 import rutasInstitucion from './routes/institucion.js';
+import rutasCiclosLectivos from './routes/ciclosLectivos.js';
+import rutasAuditoria from './routes/auditoria.js';
 
 export function crearApp() {
     const app = express();
@@ -128,6 +130,8 @@ export function crearApp() {
     app.use(rutasPerfil);
     app.use(rutasUsuarios);
     app.use(rutasRoles);
+    app.use(rutasCiclosLectivos);
+    app.use(rutasAuditoria);
 
     app.get('/up', (req, res) => res.type('text').send('ok'));
 

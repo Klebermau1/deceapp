@@ -87,8 +87,8 @@ fase se puede publicar por separado.
 - [x] **Fase 1 — Base:** conexión MySQL, sesiones, CSRF, login del personal
       (con límite de intentos y cuentas desactivadas), permisos/roles, menú,
       layout, panel de inicio, mi perfil, usuarios, perfiles y permisos, logo.
-- [ ] **Fase 2 — Administración:** datos de la institución (logo, mapa), años
-      lectivos, auditoría.
+- [x] **Fase 2 — Administración:** datos de la institución (nombre, logo,
+      responsable, ubicación en el mapa), años lectivos, auditoría.
 - [ ] **Fase 3 — Estudiantes:** nómina (importar desde Excel), listado por año,
       fichas estudiantiles (base de matrícula), estadísticas, mapa, expediente.
 - [ ] **Fase 4 — Actas de reunión:** CRUD, autoguardado, exportar PDF y Word.
@@ -108,6 +108,9 @@ fase se puede publicar por separado.
   (el formulario siempre la dejaba activa). Aquí desmarcarla sí la desactiva.
 - **Perfiles:** al cambiar permisos se limpia la caché de permisos de la versión
   PHP, para que las dos versiones vean el cambio al instante mientras convivan.
+- **Datos de la institución:** el logo se valida por su contenido (no solo por
+  la extensión), y si falta marcar la ubicación en el mapa se muestra el aviso
+  (en PHP el error no se veía).
 - **Recuperar contraseña por correo:** la versión PHP no tenía correo
   configurado (`MAIL_MAILER=log`), así que no se migró. La contraseña la
   restablece un Administrador desde Usuarios.
