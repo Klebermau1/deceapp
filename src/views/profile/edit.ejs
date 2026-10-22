@@ -1,0 +1,117 @@
+<%- contentFor('header') %>
+<h2 class="font-semibold text-xl text-gray-800 leading-tight">Mi perfil</h2>
+
+<%- contentFor('body') %>
+<% const estado = session('status'); %>
+<div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+        <%- include('../components/alertas') %>
+
+        <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <section class="max-w-xl">
+                <header>
+                    <h2 class="text-lg font-medium text-gray-900">Información del perfil</h2>
+                    <p class="mt-1 text-sm text-gray-600">Actualiza tu nombre y tu correo electrónico.</p>
+                </header>
+
+                <form method="POST" action="<%= route('profile.update') %>" class="mt-6 space-y-6">
+                    <%- csrf %>
+                    <input type="hidden" name="_method" value="PATCH">
+
+                    <div>
+                        <label for="name" class="block font-medium text-sm text-gray-700">Nombre</label>
+                        <input id="name" name="name" type="text" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                               value="<%= old('name', user.name) %>" required autofocus autocomplete="name">
+                        <%- include('../components/input-error', { mensajes: errors('name') }) %>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block font-medium text-sm text-gray-700">Correo electrónico</label>
+                        <input id="email" name="email" type="email" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                               value="<%= old('email', user.email) %>" required autocomplete="username">
+                        <%- include('../components/input-error', { mensajes: errors('email') }) %>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Guardar</button>
+                        <% if (estado === 'profile-updated') { %>
+                            <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)" class="text-sm text-gray-600">Guardado.</p>
+                        <% } %>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <section class="max-w-xl">
+                <header>
+                    <h2 class="text-lg font-medium text-gray-900">Cambiar contraseña</h2>
+                    <p class="mt-1 text-sm text-gray-600">Usa una contraseña larga y difícil de adivinar para mantener tu cuenta segura.</p>
+                </header>
+
+                <form method="POST" action="<%= route('password.update') %>" class="mt-6 space-y-6">
+                    <%- csrf %>
+                    <input type="hidden" name="_method" value="PUT">
+
+                    <div>
+                        <label for="update_password_current_password" class="block font-medium text-sm text-gray-700">Contraseña actual</label>
+                        <input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" autocomplete="current-password">
+                        <%- include('../components/input-error', { mensajes: errors('current_password', 'updatePassword') }) %>
+                    </div>
+
+                    <div>
+                        <label for="update_password_password" class="block font-medium text-sm text-gray-700">Nueva contraseña</label>
+                        <input id="update_password_password" name="password" type="password" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" autocomplete="new-password">
+                        <%- include('../components/input-error', { mensajes: errors('password', 'updatePassword') }) %>
+                    </div>
+
+                    <div>
+                        <label for="update_password_password_confirmation" class="block font-medium text-sm text-gray-700">Confirmar contraseña</label>
+                        <input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" autocomplete="new-password">
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Guardar</button>
+                        <% if (estado === 'password-updated') { %>
+                            <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)" class="text-sm text-gray-600">Guardado.</p>
+                        <% } %>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <section class="max-w-xl space-y-6" x-data="{ confirmar: <%= tieneErrores('userDeletion') ? 'true' : 'false' %> }">
+                <header>
+                    <h2 class="text-lg font-medium text-gray-900">Eliminar cuenta</h2>
+                    <p class="mt-1 text-sm text-gray-600">Al eliminar tu cuenta ya no podrás ingresar a la plataforma. Los registros que hiciste (actas, seguimientos) se conservan.</p>
+                </header>
+
+                <button type="button" x-on:click="confirmar = true" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500">Eliminar cuenta</button>
+
+                <div x-show="confirmar" x-cloak class="fixed inset-0 z-50 flex items-center justify-center px-4" x-on:keydown.escape.window="confirmar = false">
+                    <div class="absolute inset-0 bg-gray-500/75" x-on:click="confirmar = false"></div>
+                    <form method="POST" action="<%= route('profile.destroy') %>" class="relative bg-white rounded-lg shadow-xl p-6 w-full sm:max-w-2xl">
+                        <%- csrf %>
+                        <input type="hidden" name="_method" value="DELETE">
+
+                        <h2 class="text-lg font-medium text-gray-900">¿Seguro que quieres eliminar tu cuenta?</h2>
+                        <p class="mt-1 text-sm text-gray-600">Escribe tu contraseña para confirmar que quieres eliminar tu cuenta de forma permanente.</p>
+
+                        <div class="mt-6">
+                            <label for="password" class="sr-only">Contraseña</label>
+                            <input id="password" name="password" type="password" placeholder="Contraseña" class="mt-1 block w-3/4 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            <%- include('../components/input-error', { mensajes: errors('password', 'userDeletion') }) %>
+                        </div>
+
+                        <div class="mt-6 flex justify-end gap-3">
+                            <button type="button" x-on:click="confirmar = false" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50">Cancelar</button>
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500">Eliminar cuenta</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

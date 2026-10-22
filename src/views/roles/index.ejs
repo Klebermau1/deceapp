@@ -1,0 +1,80 @@
+<%- contentFor('header') %>
+<div class="flex items-center justify-between gap-3">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">Perfiles y permisos</h2>
+    <a href="<%= route('roles.create') %>" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 whitespace-nowrap">
+        + Nuevo perfil
+    </a>
+</div>
+
+<%- contentFor('body') %>
+<div class="py-8">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
+
+        <%- include('../components/alertas') %>
+
+        <p class="text-sm text-gray-600">
+            Cada usuario tiene un perfil (se asigna en <a href="<%= route('usuarios.index') %>" class="text-indigo-600 hover:underline">Usuarios</a>),
+            y el perfil define qué opciones del menú ve y qué puede hacer. Para cambiar los permisos de un perfil, usa "Editar".
+        </p>
+
+        <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-4 py-3 text-left font-medium text-gray-500 min-w-[16rem]">Permiso</th>
+                        <% roles.forEach((rol) => { %>
+                            <th class="px-3 py-3 text-center align-top min-w-[8.5rem]">
+                                <div class="font-semibold text-gray-800"><%= rol.name %></div>
+                                <div class="text-xs font-normal text-gray-500"><%= rol.users_count %> usuario(s)</div>
+                                <div class="mt-1 flex items-center justify-center gap-2 text-xs font-normal">
+                                    <a href="<%= route('roles.edit', rol.id) %>" class="text-indigo-600 hover:underline">Editar</a>
+                                    <% if (rol.name !== ADMINISTRADOR && rol.users_count === 0) { %>
+                                        <form method="POST" action="<%= route('roles.destroy', rol.id) %>"
+                                              onsubmit="return confirm(<%= JSON.stringify(`¿Eliminar el perfil ${rol.name}?`) %>);">
+                                            <%- csrf %>
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            </th>
+                        <% }) %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% catalogo.forEach((grupo) => { %>
+                        <tr class="bg-gray-50/60">
+                            <td colspan="<%= roles.length + 1 %>" class="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 border-t border-gray-200"><%= grupo.modulo %></td>
+                        </tr>
+                        <% grupo.permisos.forEach((permiso) => { %>
+                            <tr class="border-t border-gray-100">
+                                <td class="px-4 py-2">
+                                    <div class="font-medium text-gray-800"><%= permiso.etiqueta %></div>
+                                    <div class="text-xs text-gray-500"><%= permiso.descripcion %></div>
+                                </td>
+                                <% roles.forEach((rol) => { %>
+                                    <td class="px-3 py-2 text-center">
+                                        <% if (rol.permisos.has(permiso.nombre)) { %>
+                                            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-700" title="Tiene este permiso">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                                <span class="sr-only">Sí</span>
+                                            </span>
+                                        <% } else { %>
+                                            <span class="text-gray-300" title="No tiene este permiso">—<span class="sr-only">No</span></span>
+                                        <% } %>
+                                    </td>
+                                <% }) %>
+                            </tr>
+                        <% }) %>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="text-xs text-gray-500">
+            El perfil <strong>Administrador</strong> no se puede renombrar ni eliminar, y siempre conserva "Usuarios, perfiles y permisos".
+            Algunas opciones de Bienestar (años lectivos y cuestionarios) además exigen ser Administrador.
+            Cada cambio queda registrado en Auditoría.
+        </p>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="<%= locals.csrfToken || "" %>">
+
+<title><%= locals.titulo ? `${locals.titulo} · ${locals.appNombre || "Plataforma DECE"}` : (locals.appNombre || "Plataforma DECE") %></title>
+
+<% if (locals.logoUrl) { %>
+    <link rel="icon" href="<%= logoUrl %>">
+<% } else { %>
+    <link rel="icon" href="/favicon.ico">
+<% } %>
+
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/build/styles.css">
+<link rel="stylesheet" href="/build/app.css">
+<script src="/build/app.js" defer></script>

@@ -1,0 +1,82 @@
+<%# Crear o editar un perfil. Espera rol (o null), catalogo, marcados (permisos actuales), fijos (no se pueden quitar) y usuarios. %>
+<%
+    const esAdministrador = rol?.name === ADMINISTRADOR;
+    const seleccionados = hayOld ? [old('permisos', [])].flat() : marcados;
+%>
+
+<%- contentFor('header') %>
+<div class="flex items-center justify-between gap-3">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight"><%= rol ? `Perfil: ${rol.name}` : 'Nuevo perfil' %></h2>
+    <a href="<%= route('roles.index') %>" class="text-sm text-gray-500 hover:underline whitespace-nowrap">&larr; Perfiles y permisos</a>
+</div>
+
+<%- contentFor('body') %>
+<div class="py-8">
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+        <form method="POST" action="<%= rol ? route('roles.update', rol.id) : route('roles.store') %>" class="space-y-6">
+            <%- csrf %>
+            <% if (rol) { %><input type="hidden" name="_method" value="PUT"><% } %>
+
+            <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-2">
+                <label for="name" class="block font-medium text-sm text-gray-700">Nombre del perfil</label>
+                <input id="name" name="name" class="block w-full sm:w-96 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm disabled:bg-gray-100"
+                       value="<%= old('name', rol?.name) %>" <%= esAdministrador ? 'disabled' : '' %> required maxlength="60" placeholder="Ej: Docente tutor">
+                <%- include('../components/input-error', { mensajes: errors('name'), clase: '' }) %>
+                <% if (esAdministrador) { %>
+                    <p class="text-xs text-gray-500">El nombre de este perfil no se puede cambiar: la plataforma lo usa para opciones exclusivas del Administrador.</p>
+                <% } else if (rol) { %>
+                    <p class="text-xs text-gray-500"><%= usuarios %> usuario(s) tienen este perfil; los cambios les aplican de inmediato.</p>
+                <% } %>
+            </div>
+
+            <%- include('../components/input-error', { mensajes: errors('permisos'), clase: '' }) %>
+
+            <% catalogo.forEach((grupo) => { %>
+                <fieldset class="bg-white shadow-sm sm:rounded-lg p-6"
+                          x-data="{
+                              todos(marcar) {
+                                  this.$el.querySelectorAll('input[type=checkbox]:not(:disabled)').forEach((c) => c.checked = marcar);
+                              },
+                          }">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <legend class="text-sm font-semibold text-gray-800 uppercase tracking-wide"><%= grupo.modulo %></legend>
+                        <div class="text-xs space-x-3">
+                            <button type="button" x-on:click="todos(true)" class="text-indigo-600 hover:underline">Marcar todos</button>
+                            <button type="button" x-on:click="todos(false)" class="text-gray-500 hover:underline">Quitar todos</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <% grupo.permisos.forEach((permiso) => { const fijo = fijos.includes(permiso.nombre); %>
+                            <label class="<%= f.clases('flex items-start gap-3 rounded-md border px-3 py-2', {
+                                'border-gray-200 cursor-pointer hover:bg-gray-50 has-[:checked]:border-indigo-300 has-[:checked]:bg-indigo-50': !fijo,
+                                'border-gray-200 bg-gray-50': fijo,
+                            }) %>">
+                                <input type="checkbox" name="permisos[]" value="<%= permiso.nombre %>"
+                                       class="mt-0.5 rounded border-gray-300 text-indigo-600 shadow-sm"
+                                       <%= fijo || seleccionados.includes(permiso.nombre) ? 'checked' : '' %> <%= fijo ? 'disabled' : '' %>>
+                                <% if (fijo) { %>
+                                    <input type="hidden" name="permisos[]" value="<%= permiso.nombre %>">
+                                <% } %>
+                                <span>
+                                    <span class="block text-sm font-medium text-gray-800">
+                                        <%= permiso.etiqueta %>
+                                        <% if (fijo) { %><span class="ms-1 text-xs font-normal text-gray-500">(obligatorio para Administrador)</span><% } %>
+                                    </span>
+                                    <span class="block text-xs text-gray-500"><%= permiso.descripcion %></span>
+                                </span>
+                            </label>
+                        <% }) %>
+                    </div>
+                </fieldset>
+            <% }) %>
+
+            <div class="flex items-center gap-4">
+                <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                    <%= rol ? 'Guardar cambios' : 'Crear perfil' %>
+                </button>
+                <a href="<%= route('roles.index') %>" class="text-sm text-gray-500 hover:underline">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>

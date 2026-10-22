@@ -1,0 +1,42 @@
+{
+  "name": "deceapp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plataforma DECE (Departamento de Consejería Estudiantil) en Node.js + Express + EJS.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "tailwindcss -i frontend/css/app.css -o public/build/styles.css --minify",
+    "build:js": "esbuild frontend/js/app.js --bundle --minify --format=iife --target=es2019 --loader:.png=file --outdir=public/build --entry-names=app",
+    "watch:css": "tailwindcss -i frontend/css/app.css -o public/build/styles.css --watch",
+    "watch:js": "esbuild frontend/js/app.js --bundle --format=iife --target=es2019 --loader:.png=file --outdir=public/build --entry-names=app --watch",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "@tailwindcss/forms": "0.5.9",
+    "alpinejs": "3.14.8",
+    "axios": "1.7.9",
+    "bcryptjs": "2.4.3",
+    "compression": "1.7.5",
+    "dotenv": "16.4.7",
+    "ejs": "3.1.10",
+    "esbuild": "0.24.2",
+    "express": "4.21.2",
+    "express-ejs-layouts": "2.5.1",
+    "express-mysql-session": "3.0.3",
+    "express-session": "1.18.1",
+    "helmet": "8.0.0",
+    "leaflet": "1.9.4",
+    "leaflet.heat": "0.2.0",
+    "leaflet.markercluster": "1.5.3",
+    "method-override": "3.0.0",
+    "mysql2": "3.12.0",
+    "tailwindcss": "3.4.17"
+  }
+}

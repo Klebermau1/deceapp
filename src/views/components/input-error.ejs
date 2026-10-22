@@ -1,0 +1,8 @@
+<%# Mensajes de validacion de un campo. Recibe: mensajes (lista), clase %>
+<% if (locals.mensajes && mensajes.length) { %>
+    <ul class="text-sm text-red-600 space-y-1 <%= locals.clase || 'mt-2' %>">
+        <% mensajes.forEach((mensaje) => { %>
+            <li><%= mensaje %></li>
+        <% }) %>
+    </ul>
+<% } %>

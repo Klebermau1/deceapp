@@ -1,0 +1,8 @@
+<%# Mensajes flash de exito (status) y error, como session('status') / session('error'). %>
+<% const estado = session('status'); const fallo = session('error'); %>
+<% if (estado && !['profile-updated', 'password-updated'].includes(estado)) { %>
+    <div class="bg-green-50 text-green-700 text-sm rounded-md p-4"><%= estado %></div>
+<% } %>
+<% if (fallo) { %>
+    <div class="bg-red-50 text-red-700 text-sm rounded-md p-4"><%= fallo %></div>
+<% } %>

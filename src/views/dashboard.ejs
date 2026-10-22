@@ -1,0 +1,59 @@
+<%- contentFor('header') %>
+<h2 class="font-semibold text-xl text-gray-800 leading-tight">Panel DECE</h2>
+
+<%- contentFor('body') %>
+<div class="py-8">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="text-sm text-gray-500">Actas registradas</div>
+                <div class="text-3xl font-bold text-gray-800"><%= totalActas %></div>
+            </div>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="text-sm text-gray-500">Actas este mes</div>
+                <div class="text-3xl font-bold text-gray-800"><%= actasEsteMes %></div>
+            </div>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="text-sm text-gray-500">Actas en borrador</div>
+                <div class="text-3xl font-bold text-amber-600"><%= actasBorrador %></div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Actas recientes</h3>
+                    <% if (can('gestionar actas') && hasRoute('actas.create')) { %>
+                        <a href="<%= route('actas.create') %>" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                            + Nueva acta
+                        </a>
+                    <% } %>
+                </div>
+
+                <% if (actasRecientes.length === 0) { %>
+                    <p class="text-sm text-gray-500">Todavía no hay actas registradas.</p>
+                <% } else { %>
+                    <div class="divide-y divide-gray-100">
+                        <% actasRecientes.forEach((acta) => { %>
+                            <% const enlace = hasRoute('actas.show') ? route('actas.show', acta.id) : null; %>
+                            <<%= enlace ? 'a' : 'div' %> <%- enlace ? `href="${enlace}"` : '' %> class="flex items-center justify-between py-3 hover:bg-gray-50 -mx-2 px-2 rounded">
+                                <div>
+                                    <div class="font-medium text-gray-800"><%= acta.tema_reunion %></div>
+                                    <div class="text-sm text-gray-500"><%= acta.estudiante_nombres %> &middot; <%= f.fecha(acta.fecha_reunion) %></div>
+                                </div>
+                                <span class="<%= f.clases('text-xs font-semibold px-2 py-1 rounded-full', {
+                                    'bg-amber-100 text-amber-700': acta.estado === 'borrador',
+                                    'bg-green-100 text-green-700': acta.estado === 'finalizada',
+                                }) %>">
+                                    <%= acta.estado === 'borrador' ? 'Borrador' : 'Finalizada' %>
+                                </span>
+                            </<%= enlace ? 'a' : 'div' %>>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+    </div>
+</div>

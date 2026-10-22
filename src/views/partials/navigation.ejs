@@ -1,0 +1,214 @@
+<%
+    // Grupos y opciones del menu: config/menu.js, filtrados por permisos (lib/menu.js).
+    const grupos = menu();
+    const anchoPanel = { 1: 'w-80', 2: 'w-[36rem]', 3: 'w-[50rem]' };
+    const posicionPanel = {
+        izquierda: 'left-0 origin-top-left',
+        centro: 'left-1/2 -translate-x-1/2 origin-top',
+        derecha: 'right-0 origin-top-right',
+    };
+    const columnasGrid = ['grid-cols-1', 'grid-cols-1', 'grid-cols-2', 'grid-cols-3'];
+    const rolUsuario = user.roles[0];
+%>
+<nav x-data="{ abierto: false }" class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16 gap-4">
+
+            <div class="flex items-center gap-6 min-w-0">
+                <a href="<%= route('dashboard') %>" class="shrink-0 flex items-center">
+                    <%- include('../components/institution-logo', { clase: 'block h-11 w-auto fill-current text-gray-800' }) %>
+                </a>
+
+                <%# Menu de escritorio %>
+                <div class="hidden lg:flex items-center gap-1">
+                    <% grupos.forEach((grupo) => { %>
+                        <% if (grupo.ruta) { %>
+                            <a href="<%= route(grupo.ruta) %>" class="<%= f.clases('inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition', {
+                                'bg-indigo-50 text-indigo-700': grupo.activo,
+                                'text-gray-600 hover:text-gray-900 hover:bg-gray-100': !grupo.activo,
+                            }) %>" <%- grupo.activo ? 'aria-current="page"' : '' %>>
+                                <%- icono(grupo.icono) %>
+                                <%= grupo.etiqueta %>
+                            </a>
+                        <% } else { const columnas = Math.min(grupo.secciones.length, 3); %>
+                            <div class="relative" x-data="{ open: false }" x-on:click.outside="open = false" x-on:keydown.escape.window="open = false">
+                                <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open" aria-haspopup="true"
+                                        class="<%= f.clases('inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition', {
+                                            'bg-indigo-50 text-indigo-700': grupo.activo,
+                                            'text-gray-600 hover:text-gray-900 hover:bg-gray-100': !grupo.activo,
+                                        }) %>"
+                                        x-bind:class="open && 'bg-gray-100 text-gray-900'">
+                                    <%- icono(grupo.icono) %>
+                                    <%= grupo.etiqueta %>
+                                    <%- icono('flecha', 'h-4 w-4 transition-transform', `x-bind:class="open && 'rotate-180'"`) %>
+                                </button>
+
+                                <div x-show="open" x-cloak
+                                     x-transition:enter="transition ease-out duration-150"
+                                     x-transition:enter-start="opacity-0 -translate-y-1"
+                                     x-transition:enter-end="opacity-100 translate-y-0"
+                                     x-transition:leave="transition ease-in duration-100"
+                                     x-transition:leave-start="opacity-100"
+                                     x-transition:leave-end="opacity-0"
+                                     class="absolute top-full mt-2 z-50 <%= anchoPanel[columnas] %> <%= posicionPanel[grupo.alinear || 'izquierda'] %>">
+                                    <div class="rounded-xl bg-white shadow-xl ring-1 ring-gray-900/5 p-4 grid gap-x-6 gap-y-4 <%= columnasGrid[columnas] %>">
+                                        <% grupo.secciones.forEach((seccion) => { %>
+                                            <div>
+                                                <p class="px-2 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400"><%= seccion.titulo %></p>
+                                                <ul class="space-y-1">
+                                                    <% seccion.opciones.forEach((opcion) => { %>
+                                                        <li>
+                                                            <a href="<%= route(opcion.ruta) %>"
+                                                               <%- opcion.externo ? 'target="_blank" rel="noopener"' : '' %>
+                                                               <%- opcion.activo ? 'aria-current="page"' : '' %>
+                                                               class="<%= f.clases('group flex items-start gap-3 rounded-lg p-2 transition', {
+                                                                   'bg-indigo-50': opcion.activo,
+                                                                   'hover:bg-gray-50': !opcion.activo,
+                                                               }) %>">
+                                                                <span class="<%= f.clases('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition', {
+                                                                    'bg-indigo-600 text-white': opcion.activo,
+                                                                    'bg-gray-100 text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-600': !opcion.activo,
+                                                                }) %>">
+                                                                    <%- icono(opcion.icono) %>
+                                                                </span>
+                                                                <span class="min-w-0">
+                                                                    <span class="<%= f.clases('block text-sm font-medium', {
+                                                                        'text-indigo-700': opcion.activo,
+                                                                        'text-gray-800': !opcion.activo,
+                                                                    }) %>"><%= opcion.etiqueta %></span>
+                                                                    <span class="block text-xs text-gray-500 leading-snug"><%= opcion.descripcion %></span>
+                                                                </span>
+                                                            </a>
+                                                        </li>
+                                                    <% }) %>
+                                                </ul>
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% }) %>
+                </div>
+            </div>
+
+            <%# Usuario %>
+            <div class="hidden lg:flex items-center">
+                <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                    <button type="button" @click="open = ! open" class="flex items-center gap-3 rounded-full py-1 ps-1 pe-3 hover:bg-gray-100 transition">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white"><%= iniciales(user.name) %></span>
+                        <span class="text-left leading-tight">
+                            <span class="block text-sm font-medium text-gray-800 max-w-[10rem] truncate"><%= user.name %></span>
+                            <% if (rolUsuario) { %>
+                                <span class="block text-xs text-gray-500"><%= rolUsuario %></span>
+                            <% } %>
+                        </span>
+                        <%- icono('flecha', 'h-4 w-4 text-gray-400') %>
+                    </button>
+
+                    <div x-show="open" x-cloak
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         class="absolute z-50 mt-2 w-64 rounded-md shadow-lg origin-top-right end-0"
+                         @click="open = false">
+                        <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1 bg-white">
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <p class="text-sm font-medium text-gray-800 truncate"><%= user.name %></p>
+                                <p class="text-xs text-gray-500 truncate"><%= user.email %></p>
+                            </div>
+                            <a href="<%= route('profile.edit') %>" class="flex items-center gap-2 w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100">
+                                <%- icono('perfil', 'h-4 w-4 text-gray-400') %> Mi perfil
+                            </a>
+                            <form method="POST" action="<%= route('logout') %>" data-sin-overlay>
+                                <%- csrf %>
+                                <button type="submit" class="flex items-center gap-2 w-full px-4 py-2 text-start text-sm leading-5 text-red-600 hover:bg-gray-100">
+                                    <%- icono('salir', 'h-4 w-4') %> Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <%# Boton del menu movil %>
+            <div class="flex items-center lg:hidden">
+                <button type="button" x-on:click="abierto = ! abierto" x-bind:aria-expanded="abierto" aria-label="Abrir menú"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition">
+                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                        <path x-show="! abierto" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        <path x-show="abierto" x-cloak stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <%# Menu movil: acordeon por grupo %>
+    <div x-show="abierto" x-cloak x-transition.opacity class="lg:hidden border-t border-gray-200 max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div class="px-2 py-3 space-y-1">
+            <% grupos.forEach((grupo) => { %>
+                <% if (grupo.ruta) { %>
+                    <a href="<%= route(grupo.ruta) %>" class="<%= f.clases('flex items-center gap-3 px-3 py-2.5 rounded-md text-base font-medium', {
+                        'bg-indigo-50 text-indigo-700': grupo.activo,
+                        'text-gray-700 hover:bg-gray-50': !grupo.activo,
+                    }) %>">
+                        <%- icono(grupo.icono) %>
+                        <%= grupo.etiqueta %>
+                    </a>
+                <% } else { %>
+                    <div x-data="{ open: <%= grupo.activo ? 'true' : 'false' %> }">
+                        <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open" class="<%= f.clases('w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-base font-medium', {
+                            'text-indigo-700': grupo.activo,
+                            'text-gray-700 hover:bg-gray-50': !grupo.activo,
+                        }) %>">
+                            <%- icono(grupo.icono) %>
+                            <span class="flex-1 text-left"><%= grupo.etiqueta %></span>
+                            <%- icono('flecha', 'h-4 w-4 transition-transform', `x-bind:class="open && 'rotate-180'"`) %>
+                        </button>
+                        <div x-show="open" x-cloak x-transition.opacity class="ms-5 ps-3 border-l border-gray-200 pb-2">
+                            <% grupo.secciones.forEach((seccion) => { %>
+                                <p class="px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400"><%= seccion.titulo %></p>
+                                <% seccion.opciones.forEach((opcion) => { %>
+                                    <a href="<%= route(opcion.ruta) %>"
+                                       <%- opcion.externo ? 'target="_blank" rel="noopener"' : '' %>
+                                       class="<%= f.clases('flex items-center gap-3 px-3 py-2 rounded-md text-sm', {
+                                           'bg-indigo-50 text-indigo-700 font-medium': opcion.activo,
+                                           'text-gray-600 hover:bg-gray-50 hover:text-gray-900': !opcion.activo,
+                                       }) %>">
+                                        <%- icono(opcion.icono, 'h-4 w-4') %>
+                                        <%= opcion.etiqueta %>
+                                    </a>
+                                <% }) %>
+                            <% }) %>
+                        </div>
+                    </div>
+                <% } %>
+            <% }) %>
+        </div>
+
+        <div class="border-t border-gray-200 px-4 py-3">
+            <div class="flex items-center gap-3">
+                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white"><%= iniciales(user.name) %></span>
+                <div class="min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate"><%= user.name %></p>
+                    <p class="text-xs text-gray-500 truncate"><%= user.email %></p>
+                </div>
+            </div>
+            <div class="mt-3 space-y-1">
+                <a href="<%= route('profile.edit') %>" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+                    <%- icono('perfil', 'h-4 w-4') %> Mi perfil
+                </a>
+                <form method="POST" action="<%= route('logout') %>" data-sin-overlay>
+                    <%- csrf %>
+                    <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50">
+                        <%- icono('salir', 'h-4 w-4') %> Cerrar sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>

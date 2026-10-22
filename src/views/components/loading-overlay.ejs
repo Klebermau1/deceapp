@@ -1,0 +1,10 @@
+<%# "hidden" y "flex" nunca van juntas: el JS alterna entre una y otra (ver frontend/js/form-loading-overlay.js). %>
+<div id="form-loading-overlay" class="hidden fixed inset-0 z-[9999] items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-lg shadow-xl px-8 py-6 flex flex-col items-center gap-4 max-w-xs text-center">
+        <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <p id="form-loading-overlay-mensaje" class="text-sm font-medium text-gray-700">Espera un momento, estamos guardando la información...</p>
+    </div>
+</div>

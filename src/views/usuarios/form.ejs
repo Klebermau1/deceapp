@@ -1,0 +1,71 @@
+<%# Crear (usuario = null) o editar un usuario. %>
+<% const entrada = 'block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm'; %>
+<% const activoMarcado = hayOld ? old('activo', '') === '1' : (usuario ? usuario.activo : true); %>
+
+<%- contentFor('header') %>
+<h2 class="font-semibold text-xl text-gray-800 leading-tight"><%= usuario ? 'Editar usuario' : 'Nuevo usuario' %></h2>
+
+<%- contentFor('body') %>
+<div class="py-8">
+    <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white shadow-sm sm:rounded-lg p-6">
+            <form method="POST" action="<%= usuario ? route('usuarios.update', usuario.id) : route('usuarios.store') %>" class="space-y-4">
+                <%- csrf %>
+                <% if (usuario) { %><input type="hidden" name="_method" value="PUT"><% } %>
+
+                <div>
+                    <label for="name" class="block font-medium text-sm text-gray-700">Nombres y apellidos</label>
+                    <input id="name" name="name" class="<%= entrada %>" value="<%= old('name', usuario?.name) %>" required autofocus>
+                    <%- include('../components/input-error', { mensajes: errors('name') }) %>
+                </div>
+
+                <div>
+                    <label for="email" class="block font-medium text-sm text-gray-700">Correo electrónico</label>
+                    <input id="email" type="email" name="email" class="<%= entrada %>" value="<%= old('email', usuario?.email) %>" required>
+                    <%- include('../components/input-error', { mensajes: errors('email') }) %>
+                </div>
+
+                <div>
+                    <label for="cargo" class="block font-medium text-sm text-gray-700">Cargo dentro del DECE</label>
+                    <input id="cargo" name="cargo" class="<%= entrada %>" value="<%= old('cargo', usuario?.cargo) %>" placeholder="Ej. Psicólogo Educativo">
+                    <%- include('../components/input-error', { mensajes: errors('cargo') }) %>
+                </div>
+
+                <div>
+                    <label for="role" class="block font-medium text-sm text-gray-700">Rol de acceso</label>
+                    <select id="role" name="role" class="<%= entrada %>" required>
+                        <option value="">-- Selecciona un rol --</option>
+                        <% const rolElegido = old('role', rolActual); %>
+                        <% roles.forEach((rol) => { %>
+                            <option value="<%= rol %>" <%= rolElegido === rol ? 'selected' : '' %>><%= rol %></option>
+                        <% }) %>
+                    </select>
+                    <%- include('../components/input-error', { mensajes: errors('role') }) %>
+                </div>
+
+                <div>
+                    <label for="password" class="block font-medium text-sm text-gray-700"><%= usuario ? 'Nueva contraseña (opcional)' : 'Contraseña' %></label>
+                    <input id="password" type="password" name="password" class="<%= entrada %>" <%= usuario ? '' : 'required' %> autocomplete="new-password">
+                    <%- include('../components/input-error', { mensajes: errors('password') }) %>
+                </div>
+
+                <div>
+                    <label for="password_confirmation" class="block font-medium text-sm text-gray-700">Confirmar contraseña</label>
+                    <input id="password_confirmation" type="password" name="password_confirmation" class="<%= entrada %>" <%= usuario ? '' : 'required' %> autocomplete="new-password">
+                </div>
+
+                <div class="flex items-center">
+                    <input id="activo" type="checkbox" name="activo" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm" <%= activoMarcado ? 'checked' : '' %>>
+                    <label for="activo" class="ms-2 text-sm text-gray-700">Cuenta activa (permite iniciar sesión)</label>
+                </div>
+
+                <div class="flex justify-end gap-4 items-center">
+                    <a href="<%= route('usuarios.index') %>" class="text-sm text-gray-500 hover:underline">Cancelar</a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                        <%= usuario ? 'Actualizar usuario' : 'Guardar usuario' %>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

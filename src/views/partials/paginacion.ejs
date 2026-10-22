@@ -1,0 +1,28 @@
+<%# Enlaces de paginacion. Recibe: pagina (de lib/paginacion.js) %>
+<% if (pagina.ultima > 1) { %>
+    <nav role="navigation" aria-label="Paginación" class="flex items-center justify-between">
+        <p class="text-sm text-gray-700">
+            Mostrando <span class="font-medium"><%= pagina.desde %></span> a <span class="font-medium"><%= pagina.hasta %></span>
+            de <span class="font-medium"><%= pagina.total %></span> resultados
+        </p>
+        <div class="flex gap-1">
+            <% if (pagina.anterior) { %>
+                <a href="<%= pagina.anterior %>" class="px-3 py-1.5 text-sm rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">&laquo; Anterior</a>
+            <% } else { %>
+                <span class="px-3 py-1.5 text-sm rounded-md border border-gray-200 bg-gray-50 text-gray-400">&laquo; Anterior</span>
+            <% } %>
+            <% for (let n = Math.max(1, pagina.actual - 2); n <= Math.min(pagina.ultima, pagina.actual + 2); n++) { %>
+                <% if (n === pagina.actual) { %>
+                    <span aria-current="page" class="px-3 py-1.5 text-sm rounded-md border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium"><%= n %></span>
+                <% } else { %>
+                    <a href="<%= pagina.url(n) %>" class="px-3 py-1.5 text-sm rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"><%= n %></a>
+                <% } %>
+            <% } %>
+            <% if (pagina.siguiente) { %>
+                <a href="<%= pagina.siguiente %>" class="px-3 py-1.5 text-sm rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Siguiente &raquo;</a>
+            <% } else { %>
+                <span class="px-3 py-1.5 text-sm rounded-md border border-gray-200 bg-gray-50 text-gray-400">Siguiente &raquo;</span>
+            <% } %>
+        </div>
+    </nav>
+<% } %>

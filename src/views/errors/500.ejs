@@ -1,0 +1,7 @@
+<p class="text-6xl font-bold text-indigo-600">500</p>
+<h1 class="mt-4 text-xl font-semibold text-gray-800">Error del servidor</h1>
+<p class="mt-2 text-sm text-gray-600">Ocurrió un error inesperado. Si se repite, avisa al administrador del sistema.</p>
+<a href="/" class="mt-6 inline-flex items-center px-4 py-2 bg-gray-800 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Ir al inicio</a>
+<% if (locals.detalle) { %>
+    <pre class="mt-6 text-left text-xs bg-white border border-gray-200 rounded p-3 overflow-auto max-h-80"><%= detalle %></pre>
+<% } %>

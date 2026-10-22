@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] { display: none !important; }
+
+/* Carrusel del test de estilos de aprendizaje: la animacion se reproduce cada
+   vez que una pregunta pasa de display:none a visible (x-show). */
+@keyframes carrusel-desde-derecha {
+    from { opacity: 0; transform: translateX(2.5rem); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes carrusel-desde-izquierda {
+    from { opacity: 0; transform: translateX(-2.5rem); }
+    to { opacity: 1; transform: translateX(0); }
+}
+.carrusel-desde-derecha { animation: carrusel-desde-derecha 0.3s ease-out; }
+.carrusel-desde-izquierda { animation: carrusel-desde-izquierda 0.3s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+    .carrusel-desde-derecha, .carrusel-desde-izquierda { animation: none; }
+}
